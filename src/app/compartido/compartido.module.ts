@@ -5,6 +5,7 @@ import { EntradaComponent } from './componentes/entrada/entrada.component';
 import { LogoComponent } from './componentes/logo/logo.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
+import { AddUpdateViajeComponent } from './componentes/add-update-viaje/add-update-viaje.component';
 
 
 
@@ -12,13 +13,15 @@ import { IonicModule } from '@ionic/angular';
   declarations: [
     HeaderComponent,
     EntradaComponent,
-    LogoComponent
+    LogoComponent,
+    AddUpdateViajeComponent
   ],
   exports: [
     HeaderComponent,
     EntradaComponent,
     LogoComponent,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    AddUpdateViajeComponent
   ],
   imports: [
     CommonModule,

@@ -1,0 +1,72 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>Agregar Auto</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-card>
+    <ion-card-header>
+      Datos del Auto
+    </ion-card-header>
+    <ion-card-content>
+      <form [formGroup]="carForm" (ngSubmit)="onSubmit()">
+        <ion-item>
+          <ion-label position="floating">Marca</ion-label>
+          <ion-input type="text" formControlName="marca"></ion-input>
+        </ion-item> 
+
+        <ion-item>
+          <ion-label position="floating">Modelo</ion-label>
+          <ion-input type="text" formControlName="modelo"></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="floating">Patente</ion-label>
+          <ion-input type="text" formControlName="patente"></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="floating">Color</ion-label>
+          <ion-input type="text" formControlName="color"></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="floating">Asientos Disponibles</ion-label>
+          <ion-input type="number" formControlName="asientosDisponibles"></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="floating">Sector de Movilización</ion-label>
+          <ion-input type="text" formControlName="sectorMovilizacion"></ion-input>
+        </ion-item>  
+        
+        <ion-item>
+          <ion-label position="floating">Hora de salida</ion-label>
+          <ion-input 
+            type="text" 
+            formControlName="horaSalida" 
+            inputmode="numeric" 
+            pattern="([01]?[0-9]|2[0-3]):[0-5][0-9]"
+            placeholder="HH:mm">
+          </ion-input>
+        </ion-item>  
+
+        <ion-item>
+          <ion-label position="floating">Valor</ion-label>
+          <ion-input type="number" formControlName="valor"></ion-input>
+        </ion-item>
+          
+        <ion-avatar *ngIf="carForm.value.image">
+          <img [src]="carForm.value.image"/>
+        </ion-avatar>
+
+        <ion-button (click)="takeImage()" size="small" shape="round">
+          Tomar o Seleccionar
+        </ion-button>
+
+        <ion-button expand="full" type="submit">Agregar Auto</ion-button>
+      </form>
+    </ion-card-content>
+  </ion-card>
+</ion-content>

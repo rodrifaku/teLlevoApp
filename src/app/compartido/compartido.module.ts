@@ -6,7 +6,7 @@ import { LogoComponent } from './componentes/logo/logo.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { AddUpdateViajeComponent } from './componentes/add-update-viaje/add-update-viaje.component';
-
+import { AddCarComponent } from './componentes/add-car/add-car.component';
 
 
 @NgModule({
@@ -14,14 +14,16 @@ import { AddUpdateViajeComponent } from './componentes/add-update-viaje/add-upda
     HeaderComponent,
     EntradaComponent,
     LogoComponent,
-    AddUpdateViajeComponent
+    AddUpdateViajeComponent,
+    AddCarComponent
   ],
   exports: [
     HeaderComponent,
     EntradaComponent,
     LogoComponent,
     ReactiveFormsModule,
-    AddUpdateViajeComponent
+    AddUpdateViajeComponent,
+    AddCarComponent
   ],
   imports: [
     CommonModule,

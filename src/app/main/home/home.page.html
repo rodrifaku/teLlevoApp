@@ -1,14 +1,72 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title>home</ion-title>
+    <ion-buttons slot="start">
+      <ion-button routerLink="/profile">
+        <ion-icon name="person-circle"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Inicio</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  <ion-button (click)="addUpdateViaje()" >
-    Agregar Viaje
-  </ion-button>
-  <ion-button (click)="signOut()">
-    Cerrar sesión
-  </ion-button>
+  <ion-grid>
+
+
+    <!-- Display list of cars for a Conductor -->
+    <ion-row *ngIf="usuario && usuario.tipo === 'Conductor'">
+      <ion-col *ngFor="let car of cars">
+        <ion-item>
+          <ion-label>
+            <img src="{{car.image}}" alt="Car Image">
+
+            <h1>Hora de Salida {{car.horaSalida}}</h1>
+            <h2>{{ car.marca }} {{ car.modelo }}</h2>
+            <p>Patente: {{ car.patente }}</p>
+            <p>Color: {{ car.color }}</p>
+            <p>Asientos Disponibles: {{ car.asientosDisponibles }}</p>
+            <p>Sector de Movilización: {{ car.sectorMovilizacion }}</p>
+            <p>Valor: $ {{ car.valor }}</p>
+          </ion-label>
+          <ion-button color="danger" (click)="deleteCar(car.id)" fill="outline">
+            Eliminar
+          </ion-button>
+        </ion-item>
+      </ion-col>
+    </ion-row>
+
+    <!-- Lista de viajes -->
+    <ion-row>
+      <ion-col>
+        <ion-list>
+          <ion-item *ngFor="let viaje of viajes">
+            <ion-label>
+              <h2>{{ viaje.titulo }}</h2>
+              <p>{{ viaje.descripcion }}</p>
+            </ion-label>
+          </ion-item>
+        </ion-list>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
+  <ion-row>
+    <ion-col size-md="6" offset-md="3">
+      <!-- Botón para agregar auto (visible solo para Conductor) -->
+      <ion-button *ngIf="usuario && usuario.tipo === 'Conductor'" (click)="addAuto()" expand="full">
+        Agregar Auto
+      </ion-button>
+
+      <!-- Botón para agregar viaje (visible solo para Pasajero) -->
+      <ion-button *ngIf="usuario && usuario.tipo === 'Pasajero'" (click)="addUpdateViaje()" expand="full">
+        Agregar Viaje
+      </ion-button>
+
+      <!-- Botón para cerrar sesión -->
+      <ion-button (click)="signOut()" expand="full">
+        Cerrar sesión
+      </ion-button>
+    </ion-col>
+  </ion-row>
+
 </ion-content>

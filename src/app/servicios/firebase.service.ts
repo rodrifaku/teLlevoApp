@@ -1,12 +1,13 @@
-import { Injectable, inject } from '@angular/core';
-import { AngularFireAuth } from '@angular/fire/compat/auth';
 import {  getAuth, signInWithEmailAndPassword , createUserWithEmailAndPassword, updateProfile, sendPasswordResetEmail} from 'firebase/auth';
-import {  getFirestore, setDoc, doc, getDoc, addDoc, collection, collectionData, query, updateDoc, deleteDoc} from '@angular/fire/firestore';
-import { User } from '../models/user.model';
-import { AngularFirestore } from '@angular/fire/compat/firestore';
+import {  getFirestore, setDoc, doc, getDoc, addDoc, collection, collectionData, query, updateDoc, deleteDoc, where} from '@angular/fire/firestore';
+import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { AngularFireStorage } from '@angular/fire/compat/storage';
-import { getStorage, uploadString, ref, getDownloadURL, deleteObject } from "firebase/storage";
+import { AngularFirestore } from '@angular/fire/compat/firestore';
+import { Car } from '../models/car.model';
+import { Injectable, inject } from '@angular/core';
+import { User } from '../models/user.model';
 import { UtilsService } from './utils.service';
+import { getStorage, uploadString, ref, getDownloadURL, deleteObject } from "firebase/storage";
 
 
 @Injectable({
@@ -127,5 +128,43 @@ getUserProfile() {
     return null;
   }
 }
+
+  // Método para añadir un nuevo auto
+  addCar(newCar: Car) {
+    return this.addDocument('cars', newCar);
+  }
+
+  // Método para obtener todos los autos
+  getAllCars() {
+    return this.getCollectionData('cars');
+  }
+
+  // Método para obtener un auto específico por ID
+  getCarById(id: string) {
+    return this.getDocument(`cars/${id}`);
+  }
+
+  // Método para actualizar un auto
+  updateCar(id: string, updatedCar: Car) {
+    return this.updateDocument(`cars/${id}`, updatedCar);
+  }
+
+  // Método para eliminar un auto
+  deleteCar(carId: string) {
+    return deleteDoc(doc(getFirestore(), `cars/${carId}`));
+  }
+
+  
+  getCurrentUserUID(): string | null {
+    const user = getAuth().currentUser;
+    return user ? user.uid : null;
+  }
+
+  // Método para obtener los autos de un usuario específico
+  getCarsByUserId(userId: string) {
+    const carsRef = collection(getFirestore(), 'cars');
+    const q = query(carsRef, where('userId', '==', userId));
+    return collectionData(q, { idField: 'id' });
+  }
 
 }

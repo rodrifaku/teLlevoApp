@@ -1,0 +1,120 @@
+<app-header backButton="/auth" title="Registrar"></app-header>
+<ion-content>
+
+  <div class="d-flex-center">
+
+    <form [formGroup]="form" class="auth-form" (ngSubmit)="submit()" (keypress.enter)="submit()">
+
+      <app-logo></app-logo>
+
+      <app-entrada autocomplete="name" icon="mail-outline" [control]="form.controls.name" type="name"
+        label="Nombre"></app-entrada>
+
+      <div class=validators *ngIf="form.controls.name.errors && form.controls.name.touched">
+        <div *ngIf="form.controls.name.errors?.['required']">Debe ingresar nombre</div>
+        <div *ngIf="form.controls.name.errors?.['minlenght']">El nombre debe ser mayor a 4 caracteres</div>
+      </div>
+
+
+
+
+      <app-entrada autocomplete="email" icon="mail-outline" [control]="form.controls.email" type="email"
+        label="Correo"></app-entrada>
+
+      <div class=validators *ngIf="form.controls.email.errors && form.controls.email.touched">
+        <div *ngIf="form.controls.email.errors?.['required']">Debe ingresar correo</div>
+        <div *ngIf="form.controls.email.errors?.['email']">Ingrese correo válido</div>
+      </div>
+
+      <app-entrada [control]="form.controls.password" icon="lock-closed-outline" type="password" label="Contraseña">
+      </app-entrada>
+
+      <div class=validators *ngIf="form.controls.password.errors && form.controls.password.touched">
+        <div *ngIf="form.controls.password.errors?.['required']">Debe ingresar contraseña</div>
+      </div>
+      
+      <app-entrada 
+      [control]="form.controls.password"
+      icon="lock-closed-outline"
+      type="password"
+      label="Repita contraseña"
+      ></app-entrada>
+
+      <app-entrada
+      [control]="form.controls.telefono"
+      icon="call-outline"
+      type="number"
+      label="Telefono"
+      ></app-entrada>
+
+      
+      <div class="validators" *ngIf="form.controls.telefono.errors && form.controls.telefono.touched">
+          <div *ngIf="form.controls.telefono.errors?.['required']">El telefono es requerido</div>
+          <div *ngIf="form.controls.telefono.errors?.['min']">El telefono es de minimo 7 caracteres</div>
+      </div>
+
+      <!---------CARRERA------------->
+       <app-entrada
+       [control]="form.controls.carrera"
+       icon="star-outline"
+       type="text"
+       label="Carrera"
+       ></app-entrada>
+
+       
+       <div class="validators" *ngIf="form.controls.carrera.errors && form.controls.carrera.touched">
+           <div *ngIf="form.controls.carrera.errors?.['required']">La carrera es requerido</div>
+           <div *ngIf="form.controls.carrera.errors?.['minLength']">La carrera es de minimo 4 caracteres</div>
+       </div>
+
+      <!---------DIRECCION------------->
+       <app-entrada
+       [control]="form.controls.direccion"
+       icon="home-outline"
+       type="text"
+       label="Dirección"
+       ></app-entrada>
+
+       
+       <div class="validators" *ngIf="form.controls.direccion.errors && form.controls.direccion.touched">
+           <div *ngIf="form.controls.direccion.errors?.['required']">La dirección es requerida</div>
+           <div *ngIf="form.controls.direccion.errors?.['minLength']">La dirección es de minimo 4 caracteres</div>
+       </div>
+
+
+
+      <div class="validators" *ngIf="form.controls.password.errors && form.controls.password.touched">
+          <div *ngIf="form.controls.password.errors?.['required']">La contraseña es requerida</div>
+          <div *ngIf="form.controls.password.errors?.['minLength(3)']">La contraseña es de minimo 3 caracteres</div>
+          <div *ngIf="form.controls.password.errors?.['maxLength(10)']">La contraseña es de máximo 10 caracteres</div>
+      </div>
+
+
+
+
+
+
+      <label for="tipo">Tipo usuario </label>
+      <select id="tipo" formControlName="tipo">
+        <option value="" disabled selected>Selecciona una opción</option>
+        <option value="Conductor">Conductor</option>
+        <option value="Pasajero">Pasajero</option>
+      </select>
+
+      <div class="validators" *ngIf="form.controls.tipo.errors && form.controls.tipo.touched">
+        <div *ngIf="form.controls.tipo.errors?.['required']">Debe seleccionar un tipo</div>
+      </div>
+
+
+      <ion-button expand="block" mode="ios" class="submit" type="submit" [disabled]="form.invalid" routerLink="/auth">
+        Regístrate
+        <ion-icon slot="end" name="person-add-outline"></ion-icon>
+      </ion-button>
+
+
+    </form>
+
+  </div>
+
+
+</ion-content>

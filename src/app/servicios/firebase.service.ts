@@ -2,13 +2,15 @@ import {  getAuth, signInWithEmailAndPassword , createUserWithEmailAndPassword, 
 import {  getFirestore, setDoc, doc, getDoc, addDoc, collection, collectionData, query, updateDoc, deleteDoc, where} from '@angular/fire/firestore';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { AngularFireStorage } from '@angular/fire/compat/storage';
-import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { Car } from '../models/car.model';
 import { Injectable, inject } from '@angular/core';
 import { User } from '../models/user.model';
+import { Trip } from '../models/trip.model';
 import { UtilsService } from './utils.service';
 import { getStorage, uploadString, ref, getDownloadURL, deleteObject } from "firebase/storage";
-
+import { Observable } from 'rxjs';
+import { AngularFirestore, DocumentReference } from '@angular/fire/compat/firestore';
+import { map } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -139,6 +141,11 @@ getUserProfile() {
     return this.getCollectionData('cars');
   }
 
+  getAllTrips(): Observable<Trip[]> {
+    return this.firestore.collection<Trip>('trips').valueChanges();
+  }
+   
+
   // Método para obtener un auto específico por ID
   getCarById(id: string) {
     return this.getDocument(`cars/${id}`);
@@ -154,6 +161,16 @@ getUserProfile() {
     return deleteDoc(doc(getFirestore(), `cars/${carId}`));
   }
 
+  deleteTrip(tripId: string) {
+    return deleteDoc(doc(getFirestore(), `trips/${tripId}`))
+      .then(() => {
+        // Opcionalmente, puedes realizar alguna acción después de la eliminación del viaje
+        console.log('Trip deleted successfully');
+      })
+      .catch(error => {
+        console.error('Error deleting trip:', error);
+      });
+  }
   
   getCurrentUserUID(): string | null {
     const user = getAuth().currentUser;
@@ -167,4 +184,111 @@ getUserProfile() {
     return collectionData(q, { idField: 'id' });
   }
 
+  getCarsWithAvailableSeats(): Observable<Car[]> {
+    return this.firestore.collection<Car>('cars', ref => ref.where('asientosDisponibles', '>', 0))
+      .valueChanges({ idField: 'id' });
+  }
+
+  bookCarTrip(carId: string, seats: number): Promise<void> {
+    const carRef: DocumentReference = this.firestore.doc(`cars/${carId}`).ref;
+    const tripRef: DocumentReference = this.firestore.collection('trips').ref.doc(); // Crear un nuevo documento de viaje
+
+    return this.firestore.firestore.runTransaction(async (transaction) => {
+      const carDoc = await transaction.get(carRef);
+      if (!carDoc.exists) {
+        throw new Error("Car does not exist");
+      }
+
+      const newAvailableSeats = carDoc.data()['asientosDisponibles'] - seats;
+      if (newAvailableSeats < 0) {
+        throw new Error("Not enough seats available");
+      }
+
+      // Actualizar los asientos disponibles en el coche
+      transaction.update(carRef, { asientosDisponibles: newAvailableSeats });
+
+      // Crear un nuevo documento de viaje
+      const tripData = { carId, seats, /* otros datos del viaje */ };
+      transaction.set(tripRef, tripData);
+    });
+  }
+
+  createTrip(tripData: Trip): Promise<void> {
+    return this.firestore.collection('trips').add(tripData).then(() => {});
+  }
+
+  getTripsByUserId(userId: string) {
+    const carsRef = collection(getFirestore(), 'trips');
+    const q = query(carsRef, where('userId', '==', userId));
+    return collectionData(q, { idField: 'id' });
+  }
+
+  getTrips(): Observable<Trip[]> {
+    return this.firestore.collection<Trip>('trips').valueChanges();
+  }
+
+  getUsers(): Observable<User[]> {
+    return this.firestore.collection<User>('users').valueChanges();
+  }
+
+
+
+  async createReservation(tripId: string, userId: string, seats: number): Promise<void> {
+    // Genera un nuevo ID para la reserva
+    const reservationId = this.firestore.createId();
+
+    // Referencias a los documentos de la reserva y del viaje
+    const reservationRef = this.firestore.collection('reservations').doc(reservationId);
+    const tripRef = this.firestore.collection('trips').doc(tripId);
+
+    // Ejecuta una transacción para asegurar la consistencia de los datos
+    return this.firestore.firestore.runTransaction(async transaction => {
+      const tripDoc = await transaction.get(tripRef.ref);
+
+      if (!tripDoc.exists) {
+        throw new Error('El viaje no existe');
+      }
+
+      const tripData = tripDoc.data() as Trip;
+      if (!tripData) {
+        throw new Error('Datos del viaje no disponibles');
+      }
+
+      const newReservedSeats = (tripData.reservedSeats || 0) + seats;
+
+      if (newReservedSeats > tripData.seats) {
+        throw new Error('No hay suficientes asientos disponibles');
+      }
+
+      // Actualiza los asientos reservados en el viaje
+      transaction.update(tripRef.ref, { reservedSeats: newReservedSeats });
+
+      // Crea la reserva con los datos proporcionados
+      transaction.set(reservationRef.ref, {
+        id: reservationId,
+        tripId: tripId,
+        userId: userId,
+        seats: seats,
+        reservationDate: new Date() // Fecha y hora de la reserva
+      });
+    });
+  }
+  
+  
+  
+  
+
+  getCarDetails(carId: string): Observable<Car> {
+    return this.firestore.collection('cars').doc(carId).get().pipe(
+      map(doc => doc.data() as Car)
+    );
+  }
+
+  getUserDetails(userId: string): Observable<User> {
+    return this.firestore.collection('users').doc(userId).get().pipe(
+      map(doc => doc.data() as User)
+    );
+  }
+
+  
 }

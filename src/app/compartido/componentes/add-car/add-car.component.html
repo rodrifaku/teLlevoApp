@@ -1,5 +1,10 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="closeModal()">
+        <ion-icon name="arrow-back"></ion-icon>
+      </ion-button>
+    </ion-buttons>
     <ion-title>Agregar Auto</ion-title>
   </ion-toolbar>
 </ion-header>
@@ -12,38 +17,32 @@
     <ion-card-content>
       <form [formGroup]="carForm" (ngSubmit)="onSubmit()">
         <ion-item>
-          <ion-label position="floating">Marca</ion-label>
-          <ion-input type="text" formControlName="marca"></ion-input>
-        </ion-item> 
-
-        <ion-item>
-          <ion-label position="floating">Modelo</ion-label>
-          <ion-input type="text" formControlName="modelo"></ion-input>
+          <ion-input label="Marca" type="text" formControlName="marca"></ion-input>
         </ion-item>
 
         <ion-item>
-          <ion-label position="floating">Patente</ion-label>
-          <ion-input type="text" formControlName="patente"></ion-input>
+          <ion-input label="Modelo" type="text" formControlName="modelo"></ion-input>
         </ion-item>
 
         <ion-item>
-          <ion-label position="floating">Color</ion-label>
-          <ion-input type="text" formControlName="color"></ion-input>
+          <ion-input label="Patente" type="text" formControlName="patente"></ion-input>
         </ion-item>
 
         <ion-item>
-          <ion-label position="floating">Asientos Disponibles</ion-label>
-          <ion-input type="number" formControlName="asientosDisponibles"></ion-input>
+          <ion-input label="Color" type="text" formControlName="color"></ion-input>
         </ion-item>
 
         <ion-item>
-          <ion-label position="floating">Sector de Movilización</ion-label>
-          <ion-input type="text" formControlName="sectorMovilizacion"></ion-input>
+          <ion-input label="Asientos Disponibles" type="number" formControlName="asientosDisponibles"></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-input label="Sector de Movilización" type="text" formControlName="sectorMovilizacion"></ion-input>
         </ion-item>  
         
         <ion-item>
-          <ion-label position="floating">Hora de salida</ion-label>
           <ion-input 
+            label="Hora de salida" 
             type="text" 
             formControlName="horaSalida" 
             inputmode="numeric" 
@@ -53,8 +52,7 @@
         </ion-item>  
 
         <ion-item>
-          <ion-label position="floating">Valor</ion-label>
-          <ion-input type="number" formControlName="valor"></ion-input>
+          <ion-input label="Valor" type="number" formControlName="valor"></ion-input>
         </ion-item>
           
         <ion-avatar *ngIf="carForm.value.image">

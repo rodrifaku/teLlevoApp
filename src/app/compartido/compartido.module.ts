@@ -7,6 +7,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { AddUpdateViajeComponent } from './componentes/add-update-viaje/add-update-viaje.component';
 import { AddCarComponent } from './componentes/add-car/add-car.component';
+import { ManageTripsComponent } from './componentes/manage-trips/manage-trips.component';
+import { ManageReservationsComponent } from './componentes/manage-reservations/manage-reservations.component';
 
 
 @NgModule({
@@ -15,7 +17,9 @@ import { AddCarComponent } from './componentes/add-car/add-car.component';
     EntradaComponent,
     LogoComponent,
     AddUpdateViajeComponent,
-    AddCarComponent
+    AddCarComponent,
+    ManageTripsComponent,
+    ManageReservationsComponent
   ],
   exports: [
     HeaderComponent,
@@ -23,7 +27,9 @@ import { AddCarComponent } from './componentes/add-car/add-car.component';
     LogoComponent,
     ReactiveFormsModule,
     AddUpdateViajeComponent,
-    AddCarComponent
+    AddCarComponent,
+    ManageTripsComponent,
+    ManageReservationsComponent
   ],
   imports: [
     CommonModule,

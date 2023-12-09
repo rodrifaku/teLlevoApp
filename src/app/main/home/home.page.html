@@ -13,29 +13,104 @@
   <ion-grid>
 
 
-    <!-- Display list of cars for a Conductor -->
-    <ion-row *ngIf="usuario && usuario.tipo === 'Conductor'">
-      <ion-col *ngFor="let car of cars">
-        <ion-item>
-          <ion-label>
-            <img src="{{car.image}}" alt="Car Image">
+  <!-- Display list of cars for a Conductor -->
+  <ion-row *ngIf="usuario && usuario.tipo === 'Conductor'">
+    <ion-col size="12">
+      <!-- Título condicional basado en la cantidad de autos -->
+      <ion-title *ngIf="cars.length > 1; else singleCarTitle">Mis Autos</ion-title>
+      <ng-template #singleCarTitle>
+        <ion-title>Mi Auto</ion-title>
+      </ng-template>
+    </ion-col>
+    <ion-col size="12" size-md="6" *ngFor="let car of cars">
+      <ion-card (click)="openManageTripsModal(car)">
+        <img [src]="car.image" alt="Imagen del auto">
+        <ion-card-header>
+          <ion-card-title>{{ car.marca }} {{ car.modelo }}</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <p>Hora de Salida: {{ car.horaSalida }}</p>
+          <p>Patente: {{ car.patente }}</p>
+          <p>Color: {{ car.color }}</p>
+          <p>Asientos Disponibles: {{ car.asientosDisponibles }}</p>
+          <p>Sector de Movilización: {{ car.sectorMovilizacion }}</p>
+          <p>Valor: ${{ car.valor }}</p>
 
-            <h1>Hora de Salida {{car.horaSalida}}</h1>
-            <h2>{{ car.marca }} {{ car.modelo }}</h2>
-            <p>Patente: {{ car.patente }}</p>
-            <p>Color: {{ car.color }}</p>
-            <p>Asientos Disponibles: {{ car.asientosDisponibles }}</p>
-            <p>Sector de Movilización: {{ car.sectorMovilizacion }}</p>
-            <p>Valor: $ {{ car.valor }}</p>
-          </ion-label>
-          <ion-button color="danger" (click)="deleteCar(car.id)" fill="outline">
+          <!-- Botón para eliminar auto -->
+          <ion-button color="danger" (click)="$event.stopPropagation(); deleteCar(car.id)" fill="outline">
+            Eliminar
+          </ion-button>          
+        </ion-card-content>
+      </ion-card>
+    </ion-col>
+  </ion-row>
+
+    <!-- Display trips created by the Conductor -->
+    <ion-row *ngIf="usuario && usuario.tipo === 'Conductor'">
+      <ion-col size="12">
+        <ion-title>Mis Viajes Futuros</ion-title>
+      </ion-col>
+      <ion-col size="12" *ngFor="let viaje of misViajes">
+        <ion-card class="custom-card">
+          <ion-card-content>
+            <p>Fecha y Hora: {{ viaje.fecha }} {{ viaje.hora }}</p>
+            <p>Asientos Disponibles: {{ viaje.seats - viaje.reservedSeats }}</p>
+          </ion-card-content>
+          <ion-button color="danger" (click)="$event.stopPropagation(); deleteTrip(viaje.id)" fill="outline" class="custom-delete-button">
             Eliminar
           </ion-button>
-        </ion-item>
+        </ion-card>
       </ion-col>
     </ion-row>
+    
 
-    <!-- Lista de viajes -->
+    <!-- Display list of cars for a Pasajero -->
+    <!-- <ion-row *ngIf="usuario && usuario.tipo === 'Pasajero'">
+      <ion-col size="12">
+        {{ usuario.tipo }}
+        <ion-title class="ion-padding">Autos Disponibles</ion-title>
+      </ion-col>
+      <ion-col *ngFor="let car of allCars">
+        <ion-item>
+          <ion-label>
+            <img [src]="car.image" alt="Car Image">
+            <h1>Sector de Movilización: {{ car.sectorMovilizacion }}</h1>
+            <h2>Asientos Disponibles: {{ car.asientosDisponibles }}</h2>
+            <p>{{ car.marca }} {{ car.modelo }}</p>
+            <p>Nombre del Chofer: {{ car.driverName }}</p>
+            <p>Patente: {{ car.patente }}</p>
+            <p>Color: {{ car.color }}</p>
+            <p>Valor: $ {{ car.valor }}</p>
+          </ion-label>
+        </ion-item>
+      </ion-col>
+    </ion-row> -->
+
+    <!-- Display list of trips for a Pasajero -->
+    <ion-row *ngIf="usuario && usuario.tipo === 'Pasajero'">
+      <ion-col size="12">
+        <ion-title class="ion-padding">Viajes Disponibles</ion-title>
+      </ion-col>
+      <ion-col size="12" *ngFor="let trip of allTrips">
+        <ion-card class="trip-card">
+          <div class="card-image" [style.background-image]="'url(' + trip.car?.image + ')'">
+            <div class="card-overlay">
+              <div class="card-content">
+                <h1>{{ trip.car?.sectorMovilizacion }}</h1>
+                <h2>{{ trip.fecha | date: 'mediumDate' }} - {{ trip.fecha | date: 'shortTime' }}</h2>
+                <p><strong>Asientos Disponibles:</strong> {{ trip.seats - trip.reservedSeats }}</p>
+                <p><strong>Conductor:</strong> {{ trip.user?.name }}</p>
+                <p><strong>Valor por Asiento:</strong> ${{ trip.car?.valor }}</p>
+                <ion-button (click)="openReservationModal(trip)" color="primary">Reservar</ion-button>
+              </div>
+            </div>
+          </div>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+    
+    
+
     <ion-row>
       <ion-col>
         <ion-list>
@@ -55,11 +130,6 @@
       <!-- Botón para agregar auto (visible solo para Conductor) -->
       <ion-button *ngIf="usuario && usuario.tipo === 'Conductor'" (click)="addAuto()" expand="full">
         Agregar Auto
-      </ion-button>
-
-      <!-- Botón para agregar viaje (visible solo para Pasajero) -->
-      <ion-button *ngIf="usuario && usuario.tipo === 'Pasajero'" (click)="addUpdateViaje()" expand="full">
-        Agregar Viaje
       </ion-button>
 
       <!-- Botón para cerrar sesión -->

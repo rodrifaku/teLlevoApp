@@ -1,0 +1,35 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="closeModal()">
+        <ion-icon name="arrow-back"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Crear Viaje</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <!-- Formulario para crear un nuevo viaje -->
+  <form [formGroup]="tripForm" (ngSubmit)="submitTrip()">
+    <ion-item>
+      <ion-label position="floating">Número de Asientos (Máximo: {{selectedCar?.asientosDisponibles}})</ion-label>
+      <ion-input type="number" formControlName="seats"></ion-input>
+    </ion-item>
+    <ion-item *ngIf="tripForm.controls['seats'].invalid && tripForm.controls['seats'].touched">
+      <ion-text color="danger">Número de asientos es requerido y no puede exceder el máximo disponible.</ion-text>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="floating">Fecha del Viaje</ion-label>
+      <ion-datetime displayFormat="DD/MM/YYYY" formControlName="fecha"></ion-datetime>
+    </ion-item>
+    <ion-item *ngIf="tripForm.controls['fecha'].invalid && tripForm.controls['fecha'].touched">
+      <ion-text color="danger">Fecha del viaje es requerida.</ion-text>
+    </ion-item>
+
+    <ion-button type="submit" expand="full" [disabled]="!tripForm.valid">Crear Viaje</ion-button>
+  </form>
+
+  <ion-button color="medium" (click)="closeModal()">Cancelar</ion-button>
+</ion-content>

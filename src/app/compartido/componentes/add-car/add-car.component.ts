@@ -3,6 +3,8 @@ import { FirebaseService } from 'src/app/servicios/firebase.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
 import { UtilsService } from 'src/app/servicios/utils.service';
+import { ToastController } from '@ionic/angular';
+
 
 @Component({
   selector: 'app-add-car',
@@ -16,7 +18,8 @@ export class AddCarComponent {
     private formBuilder: FormBuilder,
     private firebaseSvc: FirebaseService,
     private modalController: ModalController,
-    private utilsSvc:UtilsService
+    private utilsSvc:UtilsService,
+    private toastController: ToastController
   ) {
     this.carForm = this.formBuilder.group({
       marca: ['', [Validators.required]],
@@ -50,14 +53,18 @@ export class AddCarComponent {
         };
   
         // Add the car with the userId
-        this.firebaseSvc.addCar(carData).then(() => {
-          // Handle successful addition of the car
-          this.carForm.reset();
-          this.closeModal();
-        }).catch(error => {
-          // Handle any errors that occur during the addition
-          console.error('Error adding car:', error);
-        });
+        this.firebaseSvc.addCar(carData)
+          .then(() => {
+            this.presentSuccessToast();
+            // Handle successful addition of the car
+            console.log('Car added successfully');
+            this.carForm.reset();
+            this.closeModal();
+          })
+          .catch(error => {
+            // Handle any errors that occur during the addition
+            console.error('Error adding car:', error);
+          });
       } else {
         // Handle the case where no user is logged in
         console.error('No user logged in');
@@ -67,6 +74,17 @@ export class AddCarComponent {
       console.error('Form is invalid');
     }
   }
+  
+  async presentSuccessToast() {
+    const toast = await this.toastController.create({
+      message: 'Auto agregado correctamente',
+      duration: 2000, // Duración del mensaje en milisegundos
+      position: 'top' // Puedes ajustar la posición del mensaje (top, bottom, middle)
+    });
+    await toast.present();
+  }
+  
+
 
   closeModal() {
     this.modalController.dismiss(); // Close the modal

@@ -3,5 +3,5 @@ export interface User{
   email:string,
   password:string,
   name:string,
-  tipo:string,
+  tipo: 'Conductor' | 'Pasajero';
 }

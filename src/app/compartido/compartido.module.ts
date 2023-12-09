@@ -8,7 +8,7 @@ import { IonicModule } from '@ionic/angular';
 import { AddUpdateViajeComponent } from './componentes/add-update-viaje/add-update-viaje.component';
 import { AddCarComponent } from './componentes/add-car/add-car.component';
 import { ManageTripsComponent } from './componentes/manage-trips/manage-trips.component';
-import { ManageReservationsComponent } from './componentes/manage-reservations/manage-reservations.component';
+import { ManageReservationsComponent } from './componentes/manage-reservation/manage-reservations.component';
 
 
 @NgModule({

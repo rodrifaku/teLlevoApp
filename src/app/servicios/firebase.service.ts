@@ -5,6 +5,7 @@ import { AngularFireStorage } from '@angular/fire/compat/storage';
 import { Car } from '../models/car.model';
 import { Injectable, inject } from '@angular/core';
 import { User } from '../models/user.model';
+import { Reservation } from '../models/reservation.model';
 import { Trip } from '../models/trip.model';
 import { UtilsService } from './utils.service';
 import { getStorage, uploadString, ref, getDownloadURL, deleteObject } from "firebase/storage";
@@ -232,49 +233,36 @@ getUserProfile() {
   }
 
 
-
-  async createReservation(tripId: string, userId: string, seats: number): Promise<void> {
-    // Genera un nuevo ID para la reserva
-    const reservationId = this.firestore.createId();
-
-    // Referencias a los documentos de la reserva y del viaje
-    const reservationRef = this.firestore.collection('reservations').doc(reservationId);
-    const tripRef = this.firestore.collection('trips').doc(tripId);
-
-    // Ejecuta una transacción para asegurar la consistencia de los datos
-    return this.firestore.firestore.runTransaction(async transaction => {
-      const tripDoc = await transaction.get(tripRef.ref);
-
-      if (!tripDoc.exists) {
-        throw new Error('El viaje no existe');
+  createReservation(reservationData: Reservation): Promise<void> {
+    return new Promise((resolve, reject) => {
+      if (!reservationData.userId || !reservationData.tripId || 
+          reservationData.seats == null || !reservationData.reservationDate) {
+        reject(new Error('Missing required reservation fields'));
+        return;
       }
 
-      const tripData = tripDoc.data() as Trip;
-      if (!tripData) {
-        throw new Error('Datos del viaje no disponibles');
-      }
-
-      const newReservedSeats = (tripData.reservedSeats || 0) + seats;
-
-      if (newReservedSeats > tripData.seats) {
-        throw new Error('No hay suficientes asientos disponibles');
-      }
-
-      // Actualiza los asientos reservados en el viaje
-      transaction.update(tripRef.ref, { reservedSeats: newReservedSeats });
-
-      // Crea la reserva con los datos proporcionados
-      transaction.set(reservationRef.ref, {
-        id: reservationId,
-        tripId: tripId,
-        userId: userId,
-        seats: seats,
-        reservationDate: new Date() // Fecha y hora de la reserva
+      this.firestore.collection('reservations').add({
+        userId: reservationData.userId,
+        tripId: reservationData.tripId,
+        seats: reservationData.seats,
+        reservationDate: reservationData.reservationDate.toISOString(),
+        ...(reservationData.trip && { trip: reservationData.trip }),
+        ...(reservationData.user && { user: reservationData.user })
+      })
+      .then(docRef => {
+        console.log('Reservation created with ID:', docRef.id);
+        resolve();
+      })
+      .catch(error => {
+        console.error('Error creating reservation:', error);
+        reject(error);
       });
     });
   }
   
-  
+  getTripById(tripId: string): Observable<Trip> {
+    return this.firestore.collection('trips').doc(tripId).valueChanges() as Observable<Trip>;
+  }
   
   
 
@@ -290,5 +278,19 @@ getUserProfile() {
     );
   }
 
-  
+  getReservationsByUserId(userId: string): Observable<Reservation[]> {
+    return this.firestore
+      .collection<Reservation>('reservations', (ref) =>
+        ref.where('userId', '==', userId)
+      )
+      .valueChanges();
+  }
+
+  getTripDetails(tripId: string): Observable<Trip> {
+    // Reemplaza 'viajes' con el nombre real de la colección de viajes en tu base de datos
+    const tripDoc = this.firestore.collection('viajes').doc(tripId);
+
+    return tripDoc.valueChanges() as Observable<Trip>;
+  }
+
 }

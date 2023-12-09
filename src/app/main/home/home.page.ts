@@ -4,18 +4,17 @@ import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { Car } from 'src/app/models/car.model';
 import { Trip } from 'src/app/models/trip.model';
 import { Component, OnInit } from '@angular/core';
-import { DocumentSnapshot } from '@angular/fire/compat/firestore';
 import { FirebaseService } from 'src/app/servicios/firebase.service';
-import { ManageReservationsComponent } from 'src/app/compartido/componentes/manage-reservations/manage-reservations.component';
+import { ManageReservationsComponent } from 'src/app/compartido/componentes/manage-reservation/manage-reservations.component';
 import { ManageTripsComponent } from 'src/app/compartido/componentes/manage-trips/manage-trips.component';
 import { ModalController } from '@ionic/angular';
-import { Reservation } from 'src/app/models/reservation.model';
 import { User } from 'src/app/models/user.model';
 import { UtilsService } from 'src/app/servicios/utils.service';
 import { forkJoin, Observable } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
+import { Input } from '@angular/core';
+import { tap } from 'rxjs/operators';
+import { ignoreElements } from 'rxjs/operators';
 import { AlertController } from '@ionic/angular';
-
 
 
 @Component({
@@ -24,12 +23,15 @@ import { AlertController } from '@ionic/angular';
   styleUrls: ['./home.page.scss'],
 })
 export class HomePage implements OnInit {
+  @Input() selectedTripId: string;
+
   viajes = [];
   usuario: any;
   cars = [];
   allCars = [];
   misViajes = [];
   allTrips = [];
+  misReservas = [];
 
   constructor(
     private firebaseSvc: FirebaseService,
@@ -37,6 +39,11 @@ export class HomePage implements OnInit {
     private modalController: ModalController,
     private alertController: AlertController,
   ) {}
+
+  selectTrip(tripId: string) {
+    this.selectedTripId = tripId;
+  }
+
 
   ngOnInit() {
     this.fetchUserProfileAndLoadData();
@@ -61,19 +68,19 @@ export class HomePage implements OnInit {
     this.firebaseSvc.getUserProfile().subscribe((userProfile: User) => {
       if (userProfile && userProfile.uid) {
         this.usuario = userProfile;
-  
+
         // Mueve esta parte aquí dentro del bloque if
         if (this.usuario.tipo === 'Conductor') {
           this.loadUserTrips();
         }
-  
+
         this.loadAppropriateCarData(); // Mantén esta línea aquí
       } else {
         console.error('No user profile or UID found');
       }
     });
   }
-  
+
 
 
   loadAppropriateCarData() {
@@ -82,6 +89,7 @@ export class HomePage implements OnInit {
       this.loadUserTrips();
     } else if (this.usuario.tipo === 'Pasajero') {
       this.loadAllTrips();
+      this.loadUserReservations();
     }
   }
 
@@ -112,7 +120,33 @@ export class HomePage implements OnInit {
       console.error('No user ID available for loading trips');
     }
   }
-  
+
+  loadUserReservations() {
+    if (this.usuario && this.usuario.uid) {
+      console.log('Loading reservations for user ID:', this.usuario.uid);
+      this.firebaseSvc.getReservationsByUserId(this.usuario.uid).subscribe(reservations => {
+        console.log('Reservations:', reservations);
+        this.misReservas = reservations;
+
+        const tripObservables: Observable<Trip>[] = reservations.map(reserva =>
+          this.firebaseSvc.getTripDetails(reserva.tripId)
+        );
+
+        forkJoin(tripObservables).subscribe(tripDetails => {
+          this.misReservas.forEach((reserva, index) => {
+            reserva.trip = tripDetails[index];
+          });
+        });
+      }, error => {
+        console.error('Error fetching reservations:', error);
+      });
+    } else {
+      console.error('No user ID available for loading reservations');
+    }
+  }
+
+
+
   loadAllCars() {
     this.firebaseSvc.getAllCars().subscribe(cars => {
       this.allCars = cars;
@@ -120,7 +154,7 @@ export class HomePage implements OnInit {
       console.error('Error fetching all cars:', error);
     });
   }
-  
+
   loadAllTrips() {
     this.firebaseSvc.getAllTrips().subscribe(trips => {
       const carObservables: Observable<Car>[] = trips.map(trip => this.firebaseSvc.getCarDetails(trip.carId));
@@ -141,13 +175,13 @@ export class HomePage implements OnInit {
       console.error('Error al obtener todos los viajes:', error);
     });
   }
-  
-  
+
+
   getFormattedDate(dateString: string): string {
     const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
     return new Date(dateString).toLocaleDateString(undefined, options);
-  }  
-  
+  }
+
   signOut() {
     this.firebaseSvc.signOut();
   }
@@ -191,7 +225,7 @@ export class HomePage implements OnInit {
       console.error('Error deleting trip:', error);
     });
   }
-  
+
 
 
   async openManageTripsModal(selectedCar: Car) {
@@ -201,7 +235,7 @@ export class HomePage implements OnInit {
         selectedCar: selectedCar
       }
     });
-  
+
     return await modal.present();
   }
 
@@ -209,26 +243,11 @@ export class HomePage implements OnInit {
     const modal = await this.modalController.create({
       component: ManageReservationsComponent,
       componentProps: {
-        selectedTrip: selectedTrip
+        selectedTrip: selectedTrip,
       }
     });
-  
+
     return await modal.present();
-  }  
-
-  reserveTrip(tripId: string) {
-    const userId = this.firebaseSvc.getCurrentUserUID(); // Obtiene el ID del usuario actual
-    const seatsToReserve = 1;
-
-    this.firebaseSvc.createReservation(tripId, userId, seatsToReserve)
-      .then(() => {
-        console.log('Reserva realizada con éxito');
-        // Aquí puedes agregar lógica adicional, como mostrar un mensaje de éxito
-      })
-      .catch(error => {
-        console.error('Error al realizar la reserva:', error);
-        // Maneja el error, por ejemplo, mostrando un mensaje al usuario
-      });
   }
   async confirmDeleteCar(carId: string) {
     const alert = await this.alertController.create({
@@ -252,7 +271,7 @@ export class HomePage implements OnInit {
         }
       ]
     });
-  
+
     await alert.present();
   }
 
@@ -278,8 +297,9 @@ export class HomePage implements OnInit {
         }
       ]
     });
-  
+
     await alert.present();
   }
+
 
 }

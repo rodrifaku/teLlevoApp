@@ -5,6 +5,8 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
 import { Trip } from 'src/app/models/trip.model';
 import { formatDate } from '@angular/common';
+import { v4 as uuidv4 } from 'uuid';
+import { AngularFirestore } from '@angular/fire/compat/firestore';
 
 
 @Component({
@@ -20,7 +22,8 @@ export class ManageTripsComponent implements OnInit {
   constructor(
     private formBuilder: FormBuilder,
     private firebaseSvc: FirebaseService,
-    private modalController: ModalController
+    private modalController: ModalController,
+    private firestore: AngularFirestore
   ) {
     this.initializeForm();
   }
@@ -65,7 +68,14 @@ export class ManageTripsComponent implements OnInit {
         fecha: this.tripForm.value.fecha,
         reservedSeats: 0
       };
-
+  
+      // Generar un nuevo ID para el viaje
+      const newTripId = this.firestore.createId();
+  
+      // Asignar el nuevo ID al objeto Trip
+      tripData.id = newTripId;
+  
+      // Crear el viaje en Firebase
       this.firebaseSvc.createTrip(tripData).then(() => {
         console.log('Viaje creado exitosamente');
         this.closeModal();
@@ -75,7 +85,7 @@ export class ManageTripsComponent implements OnInit {
     } else {
       console.error('Formulario no es válido');
     }
-  }
+  }  
 
   closeModal() {
     this.modalController.dismiss();

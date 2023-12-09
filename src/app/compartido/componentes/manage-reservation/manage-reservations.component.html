@@ -10,8 +10,8 @@
 </ion-header>
 
 <ion-content>
-  <!-- Mostrar detalles del viaje seleccionado -->
-  <ion-card>
+  <!-- Mostrar detalles del viaje seleccionado si selectedTrip no es nulo -->
+  <ion-card *ngIf="selectedTrip">
     <ion-card-header>
       <ion-card-title>{{ selectedTrip.car?.sectorMovilizacion }}</ion-card-title>
       <ion-card-subtitle>{{ selectedTrip.fecha | date: 'mediumDate' }} - {{ selectedTrip.fecha | date: 'shortTime' }}</ion-card-subtitle>

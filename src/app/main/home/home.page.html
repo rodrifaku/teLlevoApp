@@ -13,37 +13,38 @@
   <ion-grid>
 
 
-  <!-- Display list of cars for a Conductor -->
-  <ion-row *ngIf="usuario && usuario.tipo === 'Conductor'">
-    <ion-col size="12">
-      <!-- Título condicional basado en la cantidad de autos -->
-      <ion-title *ngIf="cars.length > 1; else singleCarTitle">Mis Autos</ion-title>
-      <ng-template #singleCarTitle>
-        <ion-title>Mi Auto</ion-title>
-      </ng-template>
-    </ion-col>
-    <ion-col size="12" size-md="6" *ngFor="let car of cars">
-      <ion-card (click)="openManageTripsModal(car)">
-        <img [src]="car.image" alt="Imagen del auto">
-        <ion-card-header>
-          <ion-card-title>{{ car.marca }} {{ car.modelo }}</ion-card-title>
-        </ion-card-header>
-        <ion-card-content>
-          <p>Hora de Salida: {{ car.horaSalida }}</p>
-          <p>Patente: {{ car.patente }}</p>
-          <p>Color: {{ car.color }}</p>
-          <p>Asientos Disponibles: {{ car.asientosDisponibles }}</p>
-          <p>Sector de Movilización: {{ car.sectorMovilizacion }}</p>
-          <p>Valor: ${{ car.valor }}</p>
+    <!-- Display list of cars for a Conductor -->
+    <ion-row *ngIf="usuario && usuario.tipo === 'Conductor'">
+      <ion-col size="12">
+        <!-- Título condicional basado en la cantidad de autos -->
+        <ion-title *ngIf="cars.length > 1; else singleCarTitle">Mis Autos</ion-title>
+        <ng-template #singleCarTitle>
+          <ion-title>Mi Auto</ion-title>
+        </ng-template>
+      </ion-col>
+      <ion-col size="12" size-md="6" *ngFor="let car of cars">
+        <ion-card (click)="openManageTripsModal(car)">
+          <img [src]="car.image" alt="Imagen del auto">
+          <ion-card-header>
+            <ion-card-title>{{ car.marca }} {{ car.modelo }}</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <p>Hora de Salida: {{ car.horaSalida }}</p>
+            <p>Patente: {{ car.patente }}</p>
+            <p>Color: {{ car.color }}</p>
+            <p>Asientos Disponibles: {{ car.asientosDisponibles }}</p>
+            <p>Sector de Movilización: {{ car.sectorMovilizacion }}</p>
+            <p>Valor: ${{ car.valor }}</p>
 
-          <!-- Botón para eliminar auto -->
-          <ion-button color="danger" (click)="$event.stopPropagation(); deleteCar(car.id)" fill="outline">
-            Eliminar
-          </ion-button>          
-        </ion-card-content>
-      </ion-card>
-    </ion-col>
-  </ion-row>
+            <!-- Botón para eliminar auto -->
+            <ion-button color="danger" (click)="$event.stopPropagation();confirmDeleteCar(car.id)" fill="outline">
+              Eliminar
+            </ion-button>
+          </ion-card-content>
+
+        </ion-card>
+      </ion-col>
+    </ion-row>
 
     <!-- Display trips created by the Conductor -->
     <ion-row *ngIf="usuario && usuario.tipo === 'Conductor'">
@@ -56,13 +57,14 @@
             <p>Fecha y Hora: {{ viaje.fecha }} {{ viaje.hora }}</p>
             <p>Asientos Disponibles: {{ viaje.seats - viaje.reservedSeats }}</p>
           </ion-card-content>
-          <ion-button color="danger" (click)="$event.stopPropagation(); deleteTrip(viaje.id)" fill="outline" class="custom-delete-button">
-            Eliminar
+          <ion-button color="primary" (click)="$event.stopPropagation(); confirmDeleteTrip(viaje.id)" fill="outline"
+            class="custom-delete-button">
+            Finalizar
           </ion-button>
         </ion-card>
       </ion-col>
     </ion-row>
-    
+
 
     <!-- Display list of cars for a Pasajero -->
     <!-- <ion-row *ngIf="usuario && usuario.tipo === 'Pasajero'">
@@ -108,8 +110,8 @@
         </ion-card>
       </ion-col>
     </ion-row>
-    
-    
+
+
 
     <ion-row>
       <ion-col>

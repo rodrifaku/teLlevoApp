@@ -14,6 +14,8 @@ import { User } from 'src/app/models/user.model';
 import { UtilsService } from 'src/app/servicios/utils.service';
 import { forkJoin, Observable } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
+import { AlertController } from '@ionic/angular';
+
 
 
 @Component({
@@ -33,6 +35,7 @@ export class HomePage implements OnInit {
     private firebaseSvc: FirebaseService,
     private utilsSvc: UtilsService,
     private modalController: ModalController,
+    private alertController: AlertController,
   ) {}
 
   ngOnInit() {
@@ -227,6 +230,56 @@ export class HomePage implements OnInit {
         // Maneja el error, por ejemplo, mostrando un mensaje al usuario
       });
   }
+  async confirmDeleteCar(carId: string) {
+    const alert = await this.alertController.create({
+      header: 'Confirmar eliminación',
+      message: '¿Estás seguro de que quieres eliminar este auto?',
+      buttons: [
+        {
+          text: 'Cancelar',
+          role: 'cancel',
+          cssClass: 'secondary',
+          handler: () => {
+            // Acciones a realizar si se hace clic en "Cancelar"
+          }
+        },
+        {
+          text: 'Eliminar',
+          handler: () => {
+            // Acciones a realizar si se hace clic en "Eliminar"
+            this.deleteCar(carId);
+          }
+        }
+      ]
+    });
+  
+    await alert.present();
+  }
 
+  async confirmDeleteTrip(viajeId: string) {
+    const alert = await this.alertController.create({
+      header: '¿Finalizar Viaje?',
+      message: '¿Estás seguro de que quieres finalizar este viaje?',
+      buttons: [
+        {
+          text: 'Cancelar',
+          role: 'cancel',
+          cssClass: 'secondary',
+          handler: () => {
+            // Acciones a realizar si se hace clic en "Cancelar"
+          }
+        },
+        {
+          text: 'Finalizar',
+          handler: () => {
+            // Acciones a realizar si se hace clic en "Eliminar"
+            this.deleteTrip(viajeId);
+          }
+        }
+      ]
+    });
+  
+    await alert.present();
+  }
 
 }
